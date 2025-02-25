@@ -10,6 +10,7 @@ return new class extends Migration
     {
         Schema::create('notification_log_items', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('loan_id')->constrained('loans')->onDelete('cascade');    
             $table->string('notification_type');
             $table->unsignedBigInteger('notifiable_id')->nullable();
             $table->string('notifiable_type')->nullable();
