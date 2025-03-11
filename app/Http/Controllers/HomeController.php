@@ -1,23 +1,64 @@
 <?php
-
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Book;
-use App\Models\Laptop;
-use App\Models\Loan;
+use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Ophalen van boeken en laptops
-        $availableBooks = Book::where('status', 'available')->get();
-        $borrowedBooks = Book::where('status', 'borrowed')->get();
-        $availableLaptops = Laptop::where('status', 'available')->get();
-        $borrowedLaptops = Laptop::where('status', 'borrowed')->get();
-        $overdueLoans = Loan::where('status', 'overdue')->count();
+        $query = Book::query();
 
-        return view('home', compact('availableBooks', 'borrowedBooks', 'availableLaptops', 'borrowedLaptops', 'overdueLoans'));
+        //filters
+        if ($request->filled('genre')) {
+            $query->where('genre', $request->genre);
+        }
+
+        if ($request->filled('author')) {
+            $query->where('author', $request->author);
+        }
+
+        if ($request->filled('publisher')) {
+            $query->where('publisher', $request->publisher);
+        }
+
+        $books = $query->get();
+
+        //filter alleen de relevante genres/auteurs/uitgevers op basis van de filterselectie
+        $genres = Book::when($request->filled('author') || $request->filled('publisher'), function ($q) use ($request) {
+            if ($request->filled('author')) {
+                $q->where('author', $request->author);
+            }
+            if ($request->filled('publisher')) {
+                $q->where('publisher', $request->publisher);
+            }
+        })->select('genre')->distinct()->pluck('genre');
+
+        $authors = Book::when($request->filled('genre') || $request->filled('publisher'), function ($q) use ($request) {
+            if ($request->filled('genre')) {
+                $q->where('genre', $request->genre);
+            }
+            if ($request->filled('publisher')) {
+                $q->where('publisher', $request->publisher);
+            }
+        })->select('author')->distinct()->pluck('author');
+
+        $publishers = Book::when($request->filled('genre') || $request->filled('author'), function ($q) use ($request) {
+            if ($request->filled('genre')) {
+                $q->where('genre', $request->genre);
+            }
+            if ($request->filled('author')) {
+                $q->where('author', $request->author);
+            }
+        })->select('publisher')->distinct()->pluck('publisher');
+
+        return view('home', [
+            'availableBooks' => $books->where('status', 'available'),
+            'borrowedBooks' => $books->where('status', 'borrowed'),
+            'genres' => $genres,
+            'authors' => $authors,
+            'publishers' => $publishers,
+        ]);
     }
 }
