@@ -31,5 +31,10 @@ class Book extends Model
         return $query->where('status', 'borrowed');
     }
 
+        public function genre()
+    {
+        return $this->belongsTo(Genre::class);
+    }
+
     
 }

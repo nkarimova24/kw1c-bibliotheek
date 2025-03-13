@@ -3,7 +3,7 @@
 @section('content')
 <div class="container">
     <h1 class="fw-bold">Boeken Beheer</h1>
-    <a href="{{ url('/admin/books') }}" class="btn btn-success mb-3">+ Nieuw Boek</a>
+    <a href="{{ route('admin.books.create')}}" class="btn btn-success mb-3">+ Nieuw Boek</a>
 
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
@@ -28,11 +28,11 @@
                     <td><span class="badge bg-{{ $book->status == 'available' ? 'success' : 'danger' }}">{{ ucfirst($book->status) }}</span></td>
                     <td>
                         <a href="{{ route('admin.books.edit', $book->id) }}" class="btn btn-warning btn-sm">Bewerken</a>
-                        {{-- <form action="{{ route('admin.books.destroy', $book->id) }}" method="POST" class="d-inline">
+                        <form action="{{ route('admin.books.destroy', $book->id) }}" method="POST" class="d-inline">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Weet je zeker dat je dit boek wilt verwijderen?')">Verwijderen</button>
-                        </form> --}}
+                        </form>
                     </td>
                 </tr>
             @endforeach
