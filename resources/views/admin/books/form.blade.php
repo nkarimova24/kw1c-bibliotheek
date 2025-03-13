@@ -70,7 +70,7 @@
                     option.selected = true;
                     select.appendChild(option);
 
-                    document.getElementById('new_genre').value = ''; // Leeg het veld
+                    document.getElementById('new_genre').value = ''; 
                     document.getElementById('genre_message').style.display = 'block';
                     setTimeout(() => document.getElementById('genre_message').style.display = 'none', 3000);
                 } else {
@@ -78,7 +78,7 @@
                     alert('Er is een fout opgetreden. Controleer de console.');
                 }
             } catch (error) {
-                console.error('Geen geldige JSON:', data); // HTML Error tonen
+                console.error('Geen geldige JSON:', data); 
             }
         })
         .catch(error => console.error('Fetch Error:', error));

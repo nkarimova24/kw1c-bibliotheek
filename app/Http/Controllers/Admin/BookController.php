@@ -73,4 +73,17 @@ class BookController extends Controller
 
         return redirect()->route('admin.books.index')->with('success', 'Boek succesvol bijgewerkt!');
     }
+
+    public function destroy(Book $book)
+{
+    try {
+        $book->delete();
+
+        return redirect()->route('admin.books.index')->with('success', 'Boek succesvol verwijderd!');
+    } catch (\Exception $e) {
+        return redirect()->route('admin.books.index')->with('error', 'Fout bij verwijderen: ' . $e->getMessage());
+    }
 }
+
+}
+

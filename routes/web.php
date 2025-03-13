@@ -14,10 +14,24 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::resource('/admin/books', AdminBookController::class, ['as' => 'admin']);
+// Route::middleware(['auth', 'role:admin'])->group(function () {
+//     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+// });
 
-Route::resource('/admin/genres', GenreController::class, ['as' => 'admin'])->only(['store']);
+// Route::resource('/admin/dashboard', AdminDashboardController::class, ['as' => 'admin']);
 
+// Route::resource('/admin/books', AdminBookController::class, ['as' => 'admin']);
+
+// Route::resource('/admin/genres', GenreController::class, ['as' => 'admin'])->only(['store']);
+
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+//dashboard
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+
+//resource
+    Route::resource('/books', AdminBookController::class);
+    Route::resource('/genres', GenreController::class)->only(['store']);
+});
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

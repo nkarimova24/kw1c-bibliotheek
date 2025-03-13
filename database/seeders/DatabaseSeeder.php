@@ -12,13 +12,13 @@ class DatabaseSeeder extends Seeder
         Role::firstOrCreate(['name' => 'admin']);
         Role::firstOrCreate(['name' => 'student']);
 
-        // Voer de seeders uit
         $this->call([
             UsersTableSeeder::class,
             BooksTableSeeder::class,
             LaptopsTableSeeder::class,
-            LoansTableSeeder::class,
-            ActivityLogTableSeeder::class
+            LoanTableSeeder::class,
+            ActivityLogTableSeeder::class,
+            UserTableSeeder::class
         ]);
     }
 }
