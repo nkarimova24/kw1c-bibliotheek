@@ -3,9 +3,11 @@
 <div class="container">
     <h1>{{ isset($book) ? 'Bewerk Boek' : 'Nieuw Boek Toevoegen' }}</h1>
 
-    <form id="bookForm">
+    <form action="{{ isset($book) ? route('admin.books.update', $book->id) : route('admin.books.store') }}" method="POST">
         @csrf
-        @isset($book) <input type="hidden" name="_method" value="PUT"> @endisset
+        @isset($book)
+            @method('PUT')
+        @endisset
         @include('admin.books.form')
         <button type="submit" class="btn btn-primary">Opslaan</button>
     </form>

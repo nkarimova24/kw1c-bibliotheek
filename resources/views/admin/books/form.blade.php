@@ -42,6 +42,12 @@
 
 <div id="genre_message" class="text-success" style="display: none;">Nieuw genre toegevoegd!</div>
 
+<div class="mb-3">
+    <label class="form-label">Leentermijn (dagen)</label>
+    <input type="number" name="loan_period" class="form-control" value="{{ old('loan_period', $book->loan_period ?? 21) }}" required>
+</div>
+
+
 <script>
   function addNewGenre() {
     let newGenre = document.getElementById('new_genre').value.trim();

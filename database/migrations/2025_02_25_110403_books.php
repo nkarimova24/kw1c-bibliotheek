@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('genre', 50)->nullable();
             $table->integer('year_published')->nullable();
             $table->text('description')->nullable();
+            $table->integer('loan_period')->default(21); 
             $table->enum('status', ['available', 'borrowed'])->default('available');
             $table->timestamps();
         });

@@ -13,12 +13,13 @@ class DatabaseSeeder extends Seeder
         Role::firstOrCreate(['name' => 'student']);
 
         $this->call([
-            UsersTableSeeder::class,
+            UserTableSeeder::class,
             BooksTableSeeder::class,
             LaptopsTableSeeder::class,
+            GenreTableSeeder::class,
             LoanTableSeeder::class,
             ActivityLogTableSeeder::class,
-            UserTableSeeder::class
+           
         ]);
     }
 }

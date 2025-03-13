@@ -10,10 +10,11 @@ class Book extends Model
         'title',
         'author',
         'publisher',
-        'genre',
+        'genre_id',
         'year_published',
         'description',
         'status',
+        'loan_period',
     ];
 
     public function loans()
@@ -31,10 +32,8 @@ class Book extends Model
         return $query->where('status', 'borrowed');
     }
 
-        public function genre()
+    public function genre()
     {
         return $this->belongsTo(Genre::class);
     }
-
-    
 }
