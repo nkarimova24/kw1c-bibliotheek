@@ -89,7 +89,7 @@
     </div>
 </div>
 @endsection
-
+{{-- TO DO: filterbalk uitgever updaten op basis van gekozen filter--}}
 @section('scripts')
 <script>
    document.addEventListener('DOMContentLoaded', function () {
