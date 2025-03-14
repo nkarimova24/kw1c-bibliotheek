@@ -9,21 +9,22 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+    public function up()
     {
         Schema::create('books', function (Blueprint $table) {
             $table->id();
-            $table->string('title', 255);
-            $table->string('author', 100);
-            $table->string('publisher', 100)->nullable();
-            $table->string('genre', 50)->nullable();
+            $table->string('title');
+            $table->string('author');
+            $table->string('publisher')->nullable();
+            $table->foreignId('genre_id')->nullable()->constrained('genres')->onDelete('set null');
             $table->integer('year_published')->nullable();
             $table->text('description')->nullable();
-            $table->integer('loan_period')->default(21); 
             $table->enum('status', ['available', 'borrowed'])->default('available');
+            $table->integer('loan_period')->default(21);
             $table->timestamps();
         });
     }
+    
 
     /**
      * Reverse the migrations.

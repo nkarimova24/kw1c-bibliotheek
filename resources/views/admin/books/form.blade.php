@@ -21,17 +21,15 @@
 
 
 {{-- Selecteer bestaand genre --}}
-<div class="mb-3">
-    <label class="form-label">Genre</label>
-    <select name="genre_id" class="form-control">
-        <option value="">-- Selecteer een genre --</option>
-        @foreach ($genres as $genre)
-            <option value="{{ $genre->id }}" {{ isset($book) && $book->genre_id == $genre->id ? 'selected' : '' }}>
-                {{ $genre->name }}
-            </option>
-        @endforeach
-    </select>
-</div>
+<select name="genre_id" class="form-control">
+    <option value="">-- Selecteer een genre --</option>
+    @foreach ($genres as $genre)
+        <option value="{{ $genre->id }}" {{ old('genre_id', $book->genre_id ?? '') == $genre->id ? 'selected' : '' }}>
+            {{ $genre->name }}
+        </option>
+    @endforeach
+</select>
+
 
 {{-- Nieuw genre toevoegen --}}
 <div class="mb-3">

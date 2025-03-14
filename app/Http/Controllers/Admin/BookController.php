@@ -5,15 +5,26 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Book;
 use App\Models\Genre;
-// use illuminate log
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 
 class BookController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $books = Book::with('genre')->paginate(10);
+        $query = Book::with('genre');
+
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where('title', 'LIKE', "%{$search}%")
+                  ->orWhere('author', 'LIKE', "%{$search}%")
+                  ->orWhereHas('genre', function ($q) use ($search) {
+                      $q->where('name', 'LIKE', "%{$search}%");
+                  });
+        }
+
+        $books = $query->paginate(10);
+
         return view('admin.books.index', compact('books'));
     }
 
@@ -24,36 +35,43 @@ class BookController extends Controller
     }
 
     public function store(Request $request)
-{
-    try {
-        Log::info('Boek opslaan gestart', $request->all());
+    {
+        Log::info('Nieuwe boek-aanvraag ontvangen:', $request->all());
+
+        if (!Genre::where('id', $request->genre_id)->exists()) {
+            Log::error("Ongeldige genre_id ontvangen:", ['genre_id' => $request->genre_id]);
+            return back()->withErrors(['genre_id' => 'Ongeldig genre geselecteerd.'])->withInput();
+        }
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'author' => 'required|string|max:255',
             'publisher' => 'nullable|string|max:255',
             'genre_id' => 'nullable|exists:genres,id',
-            'year_published' => 'nullable|integer|min:1800|max:' . date('Y'),
+            'year' => 'nullable|integer|min:1800|max:' . date('Y'),
             'description' => 'nullable|string',
-            'status' => 'nullable|in:available,borrowed',
-            'loan_period' => 'nullable|integer|min:1',
+            'loan_period' => 'nullable|integer|min:1|max:60',
         ]);
 
-        $validated['loan_period'] = $validated['loan_period'] ?? 21; // Standaard 21 dagen
+        try {
+            $book = new Book();
+            $book->title = $validated['title'];
+            $book->author = $validated['author'];
+            $book->publisher = $validated['publisher'] ?? null;
+            $book->genre_id = $validated['genre_id'] ?? null;
+            $book->year_published = $validated['year'] ?? null;
+            $book->description = $validated['description'] ?? null;
+            $book->status = $request->status ?? 'available';
+            $book->loan_period = $validated['loan_period'] ?? 21;
+            $book->save();
 
-        Log::info('Geverifieerde data', $validated);
-
-        $book = Book::create($validated);
-
-        Log::info('Boek succesvol aangemaakt', ['book_id' => $book->id]);
-
-        return redirect()->route('admin.books.index')->with('success', 'Boek succesvol toegevoegd!');
-    } catch (\Exception $e) {
-        Log::error('Fout bij opslaan van boek', ['error' => $e->getMessage()]);
-        return back()->with('error', 'Er is een fout opgetreden bij het opslaan van het boek.');
+            Log::info("Boek succesvol opgeslagen:", ['boek_id' => $book->id]);
+            return redirect()->route('admin.books.index')->with('success', 'Boek succesvol toegevoegd!');
+        } catch (\Exception $e) {
+            Log::error("Fout bij opslaan boek:", ['error' => $e->getMessage()]);
+            return back()->withErrors(['error' => 'Er is een fout opgetreden bij het opslaan van het boek.'])->withInput();
+        }
     }
-}
-
 
     public function edit(Book $book)
     {
@@ -63,7 +81,9 @@ class BookController extends Controller
 
     public function update(Request $request, Book $book)
     {
-        $request->validate([
+        Log::info("Boek bijwerken:", ['boek_id' => $book->id, 'data' => $request->all()]);
+
+        $validated = $request->validate([
             'title' => 'required|string|max:255',
             'author' => 'required|string|max:255',
             'publisher' => 'nullable|string|max:255',
@@ -74,15 +94,25 @@ class BookController extends Controller
             'loan_period' => 'required|integer|min:1',
         ]);
 
-        $book->update($request->all());
-
-        return redirect()->route('admin.books.index')->with('success', 'Boek succesvol bijgewerkt!');
+        try {
+            $book->update($validated);
+            Log::info("Boek succesvol bijgewerkt:", ['boek_id' => $book->id]);
+            return redirect()->route('admin.books.index')->with('success', 'Boek succesvol bijgewerkt!');
+        } catch (\Exception $e) {
+            Log::error("Fout bij bijwerken boek:", ['error' => $e->getMessage()]);
+            return back()->withErrors(['error' => 'Er is een fout opgetreden bij het bijwerken van het boek.'])->withInput();
+        }
     }
 
     public function destroy(Book $book)
     {
-        $book->delete();
-
-        return redirect()->route('admin.books.index')->with('success', 'Boek succesvol verwijderd!');
+        try {
+            $book->delete();
+            Log::info("Boek succesvol verwijderd:", ['boek_id' => $book->id]);
+            return redirect()->route('admin.books.index')->with('success', 'Boek succesvol verwijderd!');
+        } catch (\Exception $e) {
+            Log::error("Fout bij verwijderen boek:", ['error' => $e->getMessage()]);
+            return back()->withErrors(['error' => 'Er is een fout opgetreden bij het verwijderen van het boek.']);
+        }
     }
 }

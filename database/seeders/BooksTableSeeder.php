@@ -16,7 +16,6 @@ class BooksTableSeeder extends Seeder
     {
         $faker = Faker::create();
 
-        // Zorg dat er genres bestaan, anders maak 10 willekeurige genres aan
         if (Genre::count() == 0) {
             $defaultGenres = ['Science Fiction', 'Fantasy', 'Mystery', 'Non-fiction', 'History', 'Romance', 'Horror', 'Biography', 'Self-help', 'Technology'];
             foreach ($defaultGenres as $genreName) {
@@ -25,18 +24,18 @@ class BooksTableSeeder extends Seeder
         }
 
         $statuses = ['available', 'borrowed'];
-        $genres = Genre::pluck('id')->toArray(); // Haal alle genre ID's op
+        $genres = Genre::pluck('id')->toArray(); 
 
         for ($i = 0; $i < 100; $i++) {
             Book::create([
                 'title' => $faker->sentence(3),
                 'author' => $faker->name,
                 'publisher' => $faker->company,
-                'genre_id' => $faker->randomElement($genres), // Genre als ID
+                'genre_id' => $faker->randomElement($genres), 
                 'year_published' => $faker->numberBetween(1950, 2024),
                 'description' => $faker->paragraph(),
                 'status' => $faker->randomElement($statuses),
-                'loan_period' => 21, // Standaard 21 dagen
+                'loan_period' => 21, 
             ]);
         }
     }
