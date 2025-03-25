@@ -89,23 +89,23 @@
     </div>
 </div>
 @endsection
-{{-- TO DO: filterbalk uitgever updaten op basis van gekozen filter--}}
+
 @section('scripts')
 <script>
-   document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function () {
         const filters = document.querySelectorAll('#filter-genre, #filter-author, #filter-publisher');
-
+    
         filters.forEach(filter => {
             filter.addEventListener('change', function () {
                 fetchBooks();
             });
         });
-
+    
         function fetchBooks() {
             let genre = document.getElementById('filter-genre').value;
             let author = document.getElementById('filter-author').value;
             let publisher = document.getElementById('filter-publisher').value;
-
+    
             fetch(`{{ route('home') }}?genre_id=${genre}&author=${author}&publisher=${publisher}`, {
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'
@@ -118,7 +118,7 @@
             })
             .catch(error => console.error('Error:', error));
         }
-
+    
         function updateBooks(books) {
             let bookList = document.getElementById('book-list');
             if (books.length === 0) {
@@ -127,7 +127,7 @@
                 </div>`;
                 return;
             }
-
+    
             let html = `<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">`;
             books.forEach(book => {
                 html += `
@@ -147,40 +147,48 @@
                     </div>`;
             });
             html += `</div>`;
-
+    
             bookList.innerHTML = html;
         }
-
-       function updateFilters(genres, authors, publishers) {
-    updateGenreDropdown('filter-genre', genres);
-
-    updateSimpleDropdown('filter-author', authors);
-    updateSimpleDropdown('filter-publisher', publishers);
-}
-
-function updateGenreDropdown(filterId, options) {
-    let select = document.getElementById(filterId);
-    let selectedValue = select.value;
-    select.innerHTML = `<option value="">Alle genres</option>`;
     
-    options.forEach(option => {
-        let isSelected = selectedValue == option.id ? 'selected' : '';
-        select.innerHTML += `<option value="${option.id}" ${isSelected}>${option.name}</option>`;
-    });
-}
+        function updateFilters(genres, authors, publishers) {
 
-function updateSimpleDropdown(filterId, options) {
-    let select = document.getElementById(filterId);
-    let selectedValue = select.value;
-    select.innerHTML = `<option value="">Alle ${filterId === 'filter-author' ? 'auteurs' : 'uitgevers'}</option>`;
+            updateGenreDropdown('filter-genre', genres);
     
-    options.forEach(option => {
-        let isSelected = selectedValue == option ? 'selected' : '';
-        select.innerHTML += `<option value="${option}" ${isSelected}>${option}</option>`;
+            updateInterdependentDropdown('filter-author', authors, 'filter-genre', 'filter-publisher');
+            updateInterdependentDropdown('filter-publisher', publishers, 'filter-genre', 'filter-author');
+        }
+    
+        function updateGenreDropdown(filterId, options) {
+            let select = document.getElementById(filterId);
+            let selectedValue = select.value;
+            select.innerHTML = `<option value="">Alle genres</option>`;
+            
+            options.forEach(option => {
+                let isSelected = selectedValue == option.id ? 'selected' : '';
+                select.innerHTML += `<option value="${option.id}" ${isSelected}>${option.name}</option>`;
+            });
+        }
+    
+        function updateInterdependentDropdown(currentFilterId, options, filter1Id, filter2Id) {
+            let currentSelect = document.getElementById(currentFilterId);
+            let filter1Select = document.getElementById(filter1Id);
+            let filter2Select = document.getElementById(filter2Id);
+            
+            let selectedValue = currentSelect.value;
+            currentSelect.innerHTML = `<option value="">Alle ${currentFilterId === 'filter-author' ? 'auteurs' : 'uitgevers'}</option>`;
+            
+            //filteropties gebaseerd op gekozen filter
+            let filter1Value = filter1Select.value;
+            let filter2Value = filter2Select.value;
+    
+            options.forEach(option => {
+                let isSelected = selectedValue == option ? 'selected' : '';
+                currentSelect.innerHTML += `<option value="${option}" ${isSelected}>${option}</option>`;
+            });
+        }
     });
-}
-    });
-</script>
+    </script>
 
 
 @endsection
